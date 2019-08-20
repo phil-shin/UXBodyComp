@@ -1,0 +1,16 @@
+{
+  "name": "UXBodyComp",
+  "version": "1.0.0",
+  "description": "Fullstack Javascript App that pulls and displays ideal body composition data for a user entered height",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "concurrently \"cd backend && node server.js\" \"cd client && npm start\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^4.1.1"
+  }
+}
