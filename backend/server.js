@@ -16,11 +16,11 @@ var app = express();
 var router = express.Router();
 
 // initialize mongoose - MongoDB connection
-mongoDBUrl='';
+mongoDBUrl='mongodb+srv://PBShin96:Klymber7210@cluster0-wpdmo.mongodb.net/test?retryWrites=true&w=majority';
 mongoose.connect(mongoDBUrl, {useNewUrlParser: true});
 
 // check for errors in mongoose connection
-let db = mongoose.coneection;
+let db = mongoose.connection;
 db.once('open', () => console.log('connected to database'));
 db.on('error', console.error.bind(console, 'error connecting to database'))
 
@@ -32,9 +32,10 @@ app.use(logger('dev'));
 
 // get data api call handler
 router.get('/getData', function(req, res) {
-    let {feet, inches} = req.body;
-    let height = parseInt(feet+'.'+inches);
-    Comp.findOne({height: height}, function(err, data) {
+    //let {feet, inches} = req.body;
+    //let height = parseInt(feet+'.'+inches);
+    let { height } = req.body;
+    Comp.findOne({"height": height}, function(err, data) {
         if (err) {
             return res.json({ success: false, error: err});
         }
