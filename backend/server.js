@@ -34,12 +34,14 @@ app.use(logger('dev'));
 router.get('/getData', function(req, res) {
     //let {feet, inches} = req.body;
     //let height = parseInt(feet+'.'+inches);
-    let { height } = req.body;
-    Comp.findOne({"height": height}, function(err, data) {
+    let { heightInput } = req.body;
+    //let queryParam = {};
+    //queryParam[height]=heightInput;
+    Comp.find().exec(function(err, data) {
         if (err) {
             return res.json({ success: false, error: err});
         }
-        return res.json({success: true, data:data });
+        return res.json({success: true, data: data });
     })
 });
 
