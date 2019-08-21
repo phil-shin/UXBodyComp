@@ -7,7 +7,10 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      //intervalIsSet: null,
       data: null,
+      targetData: null,
+      intervalIsSet: false,
       feet: null,
       inches: null,
       heightEntered: false,
@@ -22,35 +25,50 @@ class App extends Component {
   }
   // continually fetch data while Component is running
   componentDidMount() {
-    this.interval = setInterval(() => this.getDataFromDB(), 1000)
+    this.getDataFromDB();
+    if (!this.state.intervalIsSet) {
+      let interval = setInterval(this.getDataFromDB, 1000);
+      this.setState({ intervalIsSet: interval });
+    }
   };
 
   // stop data fetching when Component unmounts
   componentWillUnmount() {
-    clearInterval(this.interval);
+    if (this.state.intervalIsSet) {
+      clearInterval(this.state.intervalIsSet);
+      this.setState({ intervalIsSet: null });
+    }
   };
 
   // Fetch all  database data event handler
   getDataFromDB = () => {
     console.log('feet:'+this.state.feet);
     console.log('inches:'+this.state.inches);
-    let height = parseInt(this.state.feet+this.state.inches);
-    console.log('height:'+height);
-    console.log('height type:'+typeof(height));
+    let heightInput = this.state.feet+this.state.inches;
+    console.log('height:'+heightInput);
+    console.log('height type:'+typeof(heightInput));
 
-    axios.get('http://localhost:3001/api/getData', {
-      params: {
-        height: height
-      }
-    })
+    axios.get('http://localhost:3001/api/getData')//, {
+      //params: {
+        //height: heightInput
+      //}
+    //})
     //.then((data)=>data.json())
     .then((res) => {
       console.log('res.data:');
       console.log(res.data);
       console.log('res.data.data:');
       console.log(res.data.data);
-      console.log('leanAthleteName:'+res.data.data._id);
-      this.setState({ data: res.data.data })
+      //console.log('leanAthleteName:'+res.data.leanWeight);
+      this.setState({ data: res.data.data });
+      this.state.data.map((doc) => {
+        if (doc.height == heightInput) {
+          console.log('doc height'+doc.height);
+          this.setState({
+            targetData: doc
+          })
+        }
+      })
     })
     .catch((error) => console.log(error));
   };
@@ -78,7 +96,6 @@ class App extends Component {
 
   render() {
     let height = parseInt(this.state.feet+'.'+this.state.inches);
-    //let data = JSON.stringify(this.state.data);
     return (
       <div>
         {!this.state.heightEntered ? (
@@ -93,6 +110,8 @@ class App extends Component {
             <button type="submit" 
             onClick = {(e) => {this.setState({heightEntered: !this.state.heightEntered})}} 
             value="Submit">Submit</button>
+            <p>All Data:{JSON.stringify(this.state.data)}</p>
+            <p>Target Data:{JSON.stringify(this.state.targetData)}</p>
           </div>
         ) : (
           <div>
@@ -100,24 +119,25 @@ class App extends Component {
             <Block type="lean" 
             handleExpandedChange = {this.handleLeanExpandedChange}
             expanded={this.state.leanExpanded} 
-            weight = {this.state.data.leanWeight}//this.state.data.type.lean.weight} 
-            athleteName = {this.state.data.leanAthleteName}//type.lean.athelete.name} 
-            athletePosition = {this.state.data.leanAthletePosition}//type.lean.athlete.position}
+            weight = {this.state.targetData.leanWeight}//this.state.data.type.lean.weight} 
+            athleteName = {this.state.targetData.leanAthleteName}//type.lean.athelete.name} 
+            athletePosition = {this.state.targetData.leanAthletePosition}//type.lean.athlete.position}
             ></Block>
             <Block type="athletic"
             handleExpandedChange = {this.handleAthleticExpandedChange} 
             expanded={this.state.athleticExpanded} 
-            weight = {this.state.data.athleticWeight}//type.athletic.weight}
-            athleteName = {this.state.data.athleticAthleteName}//type.athletic.athlete.name}
-            athletePosition = {this.state.data.athleticAthletePosition}//type.athetlic.athlete.position}
+            weight = {this.state.targetData.athleticWeight}//type.athletic.weight}
+            athleteName = {this.state.targetData.athleticAthleteName}//type.athletic.athlete.name}
+            athletePosition = {this.state.targetData.athleticAthletePosition}//type.athetlic.athlete.position}
             ></Block>
             <Block type="bulky"
             handleExpandedChange = {this.handleBulkyExpandedChange} 
             expanded={this.state.bulkyExpanded}
-            weight = {this.state.data.bulkyWeight}//type.bulky.weight}
-            athleteName = {this.state.data.bulkyAthleteName}//type.bulky.athlete.name}
-            athletePosition = {this.state.data.bulkyAthletePosition}//type.bulky.athlete.position}
+            weight = {this.state.targetData.bulkyWeight}//type.bulky.weight}
+            athleteName = {this.state.targetData.bulkyAthleteName}//type.bulky.athlete.name}
+            athletePosition = {this.state.targetData.bulkyAthletePosition}//type.bulky.athlete.position}
             ></Block>
+            <button onClick={(e)=> {this.setState({heightEntered: !this.state.heightEntered})}}>Enter New Height</button>
           </div>
           )}
       </div>
